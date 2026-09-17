@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Рівень спокою</title>
+    <!-- Підключаємо офіційний скрипт Telegram -->
+    <script src="https://telegram.org"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--tg-theme-bg-color, #ffffff);
+            color: var(--tg-theme-text-color, #000000);
+            text-align: center;
+            padding: 20px;
+            margin: 0;
+        }
+        h3 { margin-bottom: 20px; }
+        .slider-container { margin: 30px 0; }
+        /* Стиль для нашого язичка/повзунка */
+        .slider {
+            width: 80%;
+            height: 15px;
+            border-radius: 10px;
+            background: #ddd;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: #248bcf;
+            cursor: pointer;
+        }
+        .value-display {
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 15px;
+            color: #248bcf;
+        }
+        .btn {
+            background-color: var(--tg-theme-button-color, #248bcf);
+            color: var(--tg-theme-button-text-color, #ffffff);
+            border: none;
+            padding: 12px 30px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <h3>Мій рівень спокою на початку року:</h3>
+    
+    <div class="slider-container">
+        <input type="range" min="1" max="10" value="5" class="slider" id="calmSlider">
+        <div class="value-display" id="sliderValue">5/10 😐</div>
+    </div>
+
+    <button class="btn" id="sendBtn">Зберегти результат</button>
+
+    <script>
+        // Ініціалізуємо Telegram WebApp
+        const tg = window.Telegram.WebApp;
+        tg.expand(); // Розгортаємо шторку на оптимальну висоту
+
+        const slider = document.getElementById('calmSlider');
+        const output = document.getElementById('sliderValue');
+        const sendBtn = document.getElementById('sendBtn');
+
+        // Емодзі під кожен рівень стресу/спокою
+        const emojis = ["😭", "😰", "😰", "😬", "😐", "😐", "🙂", "😌", "😎", "🧘‍♂️"];
+
+        // Оновлюємо цифру та емодзі при перетягуванні язичка
+        slider.oninput = function() {
+            const val = this.value;
+            output.innerHTML = `${val}/10 ${emojis[val - 1]}`;
+        };
+
+        // Дія при натисканні на кнопку "Зберегти"
+        sendBtn.onclick = function() {
+            const resultData = {
+                score: slider.value
+            };
+            
+            // Відправляємо дані назад нашому боту в Telegram
+            tg.sendData(JSON.stringify(resultData));
+            
+            // Закриваємо шторку додатка
+            tg.close();
+        };
+    </script>
+</body>
+</html>
