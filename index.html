@@ -3,237 +3,743 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Рівень спокою</title>
-    <!-- Підключаємо офіційний скрипт Telegram -->
-    <script src="https://telegram.org"></script>
+
+    <title>Спокій тут</title>
+
+    <!-- Правильне підключення Telegram WebApp -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
     <style>
         :root {
             --bg-color: var(--tg-theme-bg-color, #f4f6f9);
             --card-bg: var(--tg-theme-secondary-bg-color, #ffffff);
             --text-color: var(--tg-theme-text-color, #1f2937);
             --hint-color: var(--tg-theme-hint-color, #9ca3af);
-            --accent-color: #4f46e5;
+            --accent-color: #6366f1;
+        }
+
+        * {
+            box-sizing: border-box;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+                Roboto, Helvetica, Arial, sans-serif;
+
+            background: var(--bg-color);
             color: var(--text-color);
+
             margin: 0;
-            padding: 24px 16px;
+            padding: 20px 16px;
+
             display: flex;
-            flex-direction: column;
-            align-items: center;
             justify-content: center;
-            min-height: 80vh;
-            -webkit-user-select: none;
+            align-items: center;
+
+            min-height: 100vh;
+
             user-select: none;
+            -webkit-user-select: none;
         }
 
         .card {
             background: var(--card-bg);
-            border-radius: 24px;
-            padding: 32px 24px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            border-radius: 28px;
+            padding: 28px 22px;
             width: 100%;
-            max-width: 360px;
-            box-sizing: border-box;
+            max-width: 380px;
+
             text-align: center;
-            transition: all 0.3s ease;
+
+            box-shadow:
+                0 15px 40px rgba(0, 0, 0, 0.07);
+
+            transition: 0.35s ease;
         }
 
-        h3 {
-            margin: 0 0 8px 0;
-            font-size: 20px;
-            font-weight: 700;
-            letter-spacing: -0.5px;
+        /* ---------------- TITLE ---------------- */
+
+        h2 {
+            margin: 0 0 8px;
+            font-size: 23px;
+            font-weight: 750;
+            letter-spacing: -0.6px;
         }
 
-        p.subtitle {
+        .subtitle {
+            margin: 0 auto 25px;
+            max-width: 310px;
+
             color: var(--hint-color);
             font-size: 14px;
-            margin: 0 0 32px 0;
+            line-height: 1.5;
         }
 
-        .emoji-display {
-            font-size: 64px;
-            margin-bottom: 12px;
-            height: 80px;
+        /* ---------------- MOOD IMAGE ---------------- */
+
+        .mood-image-wrapper {
+            width: 150px;
+            height: 150px;
+
+            margin: 0 auto 16px;
+
+            border-radius: 50%;
+
+            background:
+                radial-gradient(
+                    circle at 30% 30%,
+                    rgba(255,255,255,0.95),
+                    rgba(255,255,255,0.35)
+                );
+
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+            box-shadow:
+                inset 0 0 0 1px rgba(255,255,255,0.5),
+                0 12px 30px rgba(0,0,0,0.05);
+
+            transition:
+                background 0.35s ease,
+                transform 0.25s ease;
         }
 
-        .emoji-display.pop {
-            transform: scale(1.15);
+        .mood-image {
+            font-size: 88px;
+
+            line-height: 1;
+
+            transition:
+                transform 0.25s cubic-bezier(.175,.885,.32,1.275),
+                opacity 0.2s ease;
         }
 
-        .value-text {
-            font-size: 28px;
+        .mood-image.pop {
+            transform: scale(1.17);
+        }
+
+        /* ---------------- SCORE ---------------- */
+
+        .score {
+            font-size: 32px;
             font-weight: 800;
-            margin-bottom: 8px;
-            background: linear-gradient(45deg, #4f46e5, #06b6d4);
+
+            margin-bottom: 4px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    var(--accent-color),
+                    #06b6d4
+                );
+
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
-        .status-label {
-            font-size: 15px;
-            font-weight: 600;
-            color: #4f46e5;
-            margin-bottom: 32px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            height: 20px;
+        .status {
+            font-size: 16px;
+            font-weight: 700;
+
+            margin-bottom: 28px;
+
+            color: var(--accent-color);
+
+            min-height: 21px;
+
+            transition: color 0.3s ease;
         }
 
-        .slider-wrapper {
-            position: relative;
+        .mood-description {
+            font-size: 13px;
+            line-height: 1.45;
+
+            color: var(--hint-color);
+
+            margin: -15px auto 28px;
+
+            max-width: 285px;
+
+            min-height: 38px;
+        }
+
+        /* ---------------- SLIDER ---------------- */
+
+        .slider-container {
             width: 100%;
-            margin-bottom: 32px;
+            margin-bottom: 28px;
         }
 
         .slider {
+            appearance: none;
             -webkit-appearance: none;
+
             width: 100%;
-            height: 12px;
-            border-radius: 6px;
-            background: #e5e7eb;
+            height: 11px;
+
+            border-radius: 10px;
+
             outline: none;
-            transition: background 0.3s ease;
+
+            background: #e5e7eb;
+
+            cursor: pointer;
         }
 
-        /* Стиль повзунка (язичка) для Chrome/Safari/Telegram */
         .slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
             appearance: none;
-            width: 28px;
-            height: 28px;
+            -webkit-appearance: none;
+
+            width: 29px;
+            height: 29px;
+
             border-radius: 50%;
+
             background: #ffffff;
-            border: 3px solid #4f46e5;
-            box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
-            cursor: pointer;
-            transition: transform 0.1s ease, border-color 0.3s ease;
+
+            border: 3px solid var(--accent-color);
+
+            box-shadow:
+                0 4px 12px rgba(0,0,0,0.15);
+
+            transition:
+                transform 0.15s ease,
+                border-color 0.3s ease;
         }
 
         .slider::-webkit-slider-thumb:active {
-            transform: scale(1.2);
+            transform: scale(1.18);
         }
 
+        .slider::-moz-range-thumb {
+            width: 29px;
+            height: 29px;
+
+            border-radius: 50%;
+
+            background: #ffffff;
+
+            border: 3px solid var(--accent-color);
+
+            box-shadow:
+                0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        /* ---------------- BUTTON ---------------- */
+
         .btn {
-            background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
-            color: #ffffff;
-            border: none;
             width: 100%;
+
+            border: none;
+
             padding: 16px;
+
+            border-radius: 17px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    var(--accent-color),
+                    #3730a3
+                );
+
+            color: white;
+
             font-size: 16px;
-            font-weight: 600;
-            border-radius: 16px;
+            font-weight: 700;
+
             cursor: pointer;
-            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
-            transition: all 0.2s ease;
+
+            box-shadow:
+                0 7px 18px rgba(79,70,229,0.22);
+
+            transition:
+                transform 0.15s ease,
+                opacity 0.2s ease;
         }
 
         .btn:active {
             transform: scale(0.98);
-            opacity: 0.95;
+        }
+
+        /* ---------------- SUCCESS SCREEN ---------------- */
+
+        .success-screen {
+            display: none;
+
+            animation: appear 0.45s ease;
+        }
+
+        .success-icon {
+            width: 120px;
+            height: 120px;
+
+            margin: 0 auto 20px;
+
+            border-radius: 50%;
+
+            background: #ecfdf5;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 70px;
+        }
+
+        .success-title {
+            font-size: 25px;
+            font-weight: 800;
+
+            margin-bottom: 10px;
+        }
+
+        .success-text {
+            color: var(--hint-color);
+
+            font-size: 15px;
+            line-height: 1.55;
+
+            margin: 0 auto;
+
+            max-width: 310px;
+        }
+
+        .success-quote {
+            margin-top: 22px;
+
+            padding: 15px;
+
+            border-radius: 16px;
+
+            background: rgba(99, 102, 241, 0.08);
+
+            font-size: 14px;
+            line-height: 1.5;
+
+            color: var(--text-color);
+        }
+
+        .small-text {
+            margin-top: 20px;
+
+            font-size: 12px;
+
+            color: var(--hint-color);
+        }
+
+        @keyframes appear {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     </style>
 </head>
+
 <body>
 
-    <div class="card">
-        <h3>Який твій рівень спокою?</h3>
-        <p class="subtitle">Потягни язичок, щоб виставити стан на початку навчання</p>
-        
-        <div class="emoji-display" id="emojiFace">😐</div>
-        <div class="value-text" id="sliderValue">5 / 10</div>
-        <div class="status-label" id="statusLabel">Тримаюся</div>
+<div class="card">
 
-        <div class="slider-wrapper">
-            <input type="range" min="1" max="10" value="5" class="slider" id="calmSlider">
+    <!-- ОСНОВНИЙ ЕКРАН -->
+
+    <div id="mainScreen">
+
+        <h2>Який твій рівень спокою?</h2>
+
+        <p class="subtitle">
+            Потягни повзунок і покажи свій настрій
+            на початку навчального року
+        </p>
+
+        <div class="mood-image-wrapper" id="moodCircle">
+            <div class="mood-image" id="moodImage">😐</div>
         </div>
 
-        <button class="btn" id="sendBtn">Зберегти стан</button>
+        <div class="score" id="sliderValue">
+            5 / 10
+        </div>
+
+        <div class="status" id="statusLabel">
+            Тримаюся
+        </div>
+
+        <div class="mood-description" id="moodDescription">
+            Нормальний стан. Тримаєшся і рухаєшся далі.
+        </div>
+
+        <div class="slider-container">
+
+            <input
+                type="range"
+                min="1"
+                max="10"
+                value="5"
+                class="slider"
+                id="calmSlider"
+            >
+
+        </div>
+
+        <button class="btn" id="sendBtn">
+            Зберегти стан
+        </button>
+
     </div>
 
-    <script>
-        const tg = window.Telegram.WebApp;
-        tg.ready();
-        tg.expand(); // Розгортаємо додаток максимально зручно
 
-        const slider = document.getElementById('calmSlider');
-        const emojiFace = document.getElementById('emojiFace');
-        const sliderValue = document.getElementById('sliderValue');
-        const statusLabel = document.getElementById('statusLabel');
-        const sendBtn = document.getElementById('sendBtn');
+    <!-- ФІНАЛЬНИЙ ЕКРАН -->
 
-        // Дані для кожного рівня: [Емодзі, Текст статусу, Колір бренду]
-        const states = {
-            1: ["😭", "Повна паніка", "#ef4444"],
-            2: ["😰", "Дуже тривожно", "#f97316"],
-            3: ["😬", "Стрес наростає", "#f59e0b"],
-            4: ["😓", "Важкувато", "#eab308"],
-            5: ["😐", "Нормально / Тримаюся", "#6366f1"],
-            6: ["🙂", "Більш-менш ок", "#10b981"],
-            7: ["😌", "Спокійний(а)", "#059669"],
-            8: ["😎", "Все під контролем", "#047857"],
-            9: ["🧘‍♂️", "Повний дзен", "#065f46"],
-            10: ["🚀", "Готовий(а) підкорювати світ!", "#1e1b4b"]
-        };
+    <div class="success-screen" id="successScreen">
 
-        let lastValue = slider.value;
+        <div class="success-icon">
+            🌿
+        </div>
 
-        function updateUI(val) {
-            const [emoji, label, color] = states[val];
-            
-            sliderValue.innerText = `${val} / 10`;
-            statusLabel.innerText = label;
-            statusLabel.style.color = color;
-            slider.style.borderImage = color;
-            
-            // Змінюємо колір самого повзунка динамічно
-            document.documentElement.style.setProperty('--accent-color', color);
-            slider.style.background = `linear-gradient(to right, ${color} ${(val-1)*11.1}%, #e5e7eb ${(val-1)*11.1}%)`;
+        <div class="success-title">
+            Спокій тут 💙
+        </div>
 
-            if (emojiFace.innerText !== emoji) {
-                emojiFace.innerText = emoji;
-                emojiFace.classList.add('pop');
-                setTimeout(() => emojiFace.classList.remove('pop'), 200);
-            }
+        <p class="success-text">
+            Твій стан збережено.
+            Не обов’язково бути спокійним весь час —
+            важливо помічати свій стан і давати собі
+            трохи часу на відпочинок.
+        </p>
 
-            // Тактильний відгук (вібрація) при зміні значення
-            if (val !== lastValue) {
-                if (tg.HapticFeedback) {
-                    tg.HapticFeedback.impactOccurred('light');
-                }
-                lastValue = val;
-            }
+        <div class="success-quote">
+            «Не поспішай. Дихай. 
+            Усе важливе можна робити крок за кроком.»
+        </div>
+
+        <div class="small-text">
+            Дякуємо, що приєднався до флешмобу «Спокій тут» 🌿
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    const tg = window.Telegram.WebApp;
+
+    tg.ready();
+    tg.expand();
+
+
+    const slider = document.getElementById("calmSlider");
+
+    const moodImage = document.getElementById("moodImage");
+
+    const moodCircle = document.getElementById("moodCircle");
+
+    const sliderValue = document.getElementById("sliderValue");
+
+    const statusLabel = document.getElementById("statusLabel");
+
+    const moodDescription =
+        document.getElementById("moodDescription");
+
+    const sendBtn = document.getElementById("sendBtn");
+
+    const mainScreen =
+        document.getElementById("mainScreen");
+
+    const successScreen =
+        document.getElementById("successScreen");
+
+
+    /*
+        10 рівнів настрою.
+        Тут можна легко замінити емодзі
+        на справжні картинки.
+    */
+
+    const states = {
+
+        1: {
+            emoji: "😭",
+            label: "Повна паніка",
+            color: "#ef4444",
+            description:
+                "Здається, навчальний рік уже почався надто швидко."
+        },
+
+        2: {
+            emoji: "😰",
+            label: "Дуже тривожно",
+            color: "#f97316",
+            description:
+                "Трохи хвилюєшся, але ти вже тут — і це головне."
+        },
+
+        3: {
+            emoji: "😬",
+            label: "Стрес наростає",
+            color: "#f59e0b",
+            description:
+                "Є напруження, але ситуація ще під контролем."
+        },
+
+        4: {
+            emoji: "😓",
+            label: "Важкувато",
+            color: "#eab308",
+            description:
+                "Не все легко, але поступово звикаєш до нового ритму."
+        },
+
+        5: {
+            emoji: "😐",
+            label: "Тримаюся",
+            color: "#6366f1",
+            description:
+                "Нормальний стан. Тримаєшся і рухаєшся далі."
+        },
+
+        6: {
+            emoji: "🙂",
+            label: "Більш-менш ок",
+            color: "#10b981",
+            description:
+                "Потроху входиш у ритм. Уже значно спокійніше."
+        },
+
+        7: {
+            emoji: "😌",
+            label: "Спокійний(а)",
+            color: "#059669",
+            description:
+                "Ти вже відчуваєш себе впевненіше та спокійніше."
+        },
+
+        8: {
+            emoji: "😎",
+            label: "Все під контролем",
+            color: "#047857",
+            description:
+                "Навчальний рік? Легко. Ти готовий(а)."
+        },
+
+        9: {
+            emoji: "🧘",
+            label: "Повний дзен",
+            color: "#065f46",
+            description:
+                "Жодної паніки. Просто спокій, дихання і рівновага."
+        },
+
+        10: {
+            emoji: "🚀",
+            label: "Готовий(а) підкорювати світ!",
+            color: "#312e81",
+            description:
+                "Енергії вистачить на весь навчальний рік!"
         }
 
-        // Ініціалізація початкового стану
-        updateUI(slider.value);
+    };
 
-        slider.oninput = function() {
+
+    let lastValue = slider.value;
+
+
+    function updateUI(value) {
+
+        const state = states[value];
+
+        /*
+            Основна інформація
+        */
+
+        sliderValue.innerText =
+            `${value} / 10`;
+
+        statusLabel.innerText =
+            state.label;
+
+        moodDescription.innerText =
+            state.description;
+
+
+        /*
+            Колір
+        */
+
+        document.documentElement.style
+            .setProperty(
+                "--accent-color",
+                state.color
+            );
+
+        statusLabel.style.color =
+            state.color;
+
+
+        /*
+            Заповнення повзунка
+        */
+
+        const percent =
+            ((value - 1) / 9) * 100;
+
+        slider.style.background =
+            `linear-gradient(
+                to right,
+                ${state.color} 0%,
+                ${state.color} ${percent}%,
+                #e5e7eb ${percent}%,
+                #e5e7eb 100%
+            )`;
+
+
+        /*
+            Зміна "картинки настрою"
+        */
+
+        if (moodImage.innerText !== state.emoji) {
+
+            moodImage.classList.add("pop");
+
+            setTimeout(() => {
+
+                moodImage.innerText =
+                    state.emoji;
+
+                moodImage.classList.remove("pop");
+
+            }, 100);
+        }
+
+
+        /*
+            Трохи змінюємо фон кола
+        */
+
+        moodCircle.style.background =
+            `radial-gradient(
+                circle at 30% 30%,
+                rgba(255,255,255,0.95),
+                ${state.color}22
+            )`;
+
+
+        /*
+            Вібрація Telegram
+        */
+
+        if (
+            String(value) !==
+            String(lastValue)
+        ) {
+
+            if (tg.HapticFeedback) {
+
+                tg.HapticFeedback
+                    .impactOccurred("light");
+            }
+
+            lastValue = value;
+        }
+    }
+
+
+    /*
+        Початковий стан
+    */
+
+    updateUI(slider.value);
+
+
+    /*
+        Рух повзунка
+    */
+
+    slider.addEventListener(
+        "input",
+        function () {
+
             updateUI(this.value);
-        };
 
-        sendBtn.onclick = function() {
-            const val = slider.value;
-            const [emoji, label] = states[val];
-            
+        }
+    );
+
+
+    /*
+        Кнопка
+    */
+
+    sendBtn.addEventListener(
+        "click",
+        function () {
+
+            const value =
+                slider.value;
+
+            const state =
+                states[value];
+
+
             const resultData = {
-                score: val,
-                status: label,
-                emoji: emoji
+
+                score: value,
+
+                status: state.label,
+
+                emoji: state.emoji
+
             };
-            
-            // Відправляємо боту красивий результат
-            tg.sendData(JSON.stringify(resultData));
-            tg.close();
-        };
-    </script>
+
+
+            /*
+                Невелика вібрація
+            */
+
+            if (tg.HapticFeedback) {
+
+                tg.HapticFeedback
+                    .notificationOccurred("success");
+            }
+
+
+            /*
+                Міняємо головний екран
+                на фінальне повідомлення
+            */
+
+            mainScreen.style.display =
+                "none";
+
+            successScreen.style.display =
+                "block";
+
+
+            /*
+                Передаємо результат боту
+                через невелику паузу,
+                щоб користувач встиг
+                побачити фінальний екран.
+            */
+
+            setTimeout(() => {
+
+                tg.sendData(
+                    JSON.stringify(resultData)
+                );
+
+            }, 1800);
+
+        }
+    );
+
+</script>
+
 </body>
 </html>
