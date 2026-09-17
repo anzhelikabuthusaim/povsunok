@@ -2,95 +2,236 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Рівень спокою</title>
     <!-- Підключаємо офіційний скрипт Telegram -->
     <script src="https://telegram.org"></script>
     <style>
+        :root {
+            --bg-color: var(--tg-theme-bg-color, #f4f6f9);
+            --card-bg: var(--tg-theme-secondary-bg-color, #ffffff);
+            --text-color: var(--tg-theme-text-color, #1f2937);
+            --hint-color: var(--tg-theme-hint-color, #9ca3af);
+            --accent-color: #4f46e5;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            background-color: var(--tg-theme-bg-color, #ffffff);
-            color: var(--tg-theme-text-color, #000000);
-            text-align: center;
-            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
             margin: 0;
+            padding: 24px 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 80vh;
+            -webkit-user-select: none;
+            user-select: none;
         }
-        h3 { margin-bottom: 20px; }
-        .slider-container { margin: 30px 0; }
-        /* Стиль для нашого язичка/повзунка */
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 24px;
+            padding: 32px 24px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            width: 100%;
+            max-width: 360px;
+            box-sizing: border-box;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        h3 {
+            margin: 0 0 8px 0;
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        p.subtitle {
+            color: var(--hint-color);
+            font-size: 14px;
+            margin: 0 0 32px 0;
+        }
+
+        .emoji-display {
+            font-size: 64px;
+            margin-bottom: 12px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .emoji-display.pop {
+            transform: scale(1.15);
+        }
+
+        .value-text {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            background: linear-gradient(45deg, #4f46e5, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .status-label {
+            font-size: 15px;
+            font-weight: 600;
+            color: #4f46e5;
+            margin-bottom: 32px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            height: 20px;
+        }
+
+        .slider-wrapper {
+            position: relative;
+            width: 100%;
+            margin-bottom: 32px;
+        }
+
         .slider {
-            width: 80%;
-            height: 15px;
-            border-radius: 10px;
-            background: #ddd;
-            outline: none;
             -webkit-appearance: none;
+            width: 100%;
+            height: 12px;
+            border-radius: 6px;
+            background: #e5e7eb;
+            outline: none;
+            transition: background 0.3s ease;
         }
+
+        /* Стиль повзунка (язичка) для Chrome/Safari/Telegram */
         .slider::-webkit-slider-thumb {
             -webkit-appearance: none;
-            width: 25px;
-            height: 25px;
+            appearance: none;
+            width: 28px;
+            height: 28px;
             border-radius: 50%;
-            background: #248bcf;
+            background: #ffffff;
+            border: 3px solid #4f46e5;
+            box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
             cursor: pointer;
+            transition: transform 0.1s ease, border-color 0.3s ease;
         }
-        .value-display {
-            font-size: 24px;
-            font-weight: bold;
-            margin-top: 15px;
-            color: #248bcf;
+
+        .slider::-webkit-slider-thumb:active {
+            transform: scale(1.2);
         }
+
         .btn {
-            background-color: var(--tg-theme-button-color, #248bcf);
-            color: var(--tg-theme-button-text-color, #ffffff);
+            background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
+            color: #ffffff;
             border: none;
-            padding: 12px 30px;
+            width: 100%;
+            padding: 16px;
             font-size: 16px;
-            border-radius: 8px;
+            font-weight: 600;
+            border-radius: 16px;
             cursor: pointer;
-            margin-top: 20px;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+            transition: all 0.2s ease;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+            opacity: 0.95;
         }
     </style>
 </head>
 <body>
 
-    <h3>Мій рівень спокою на початку року:</h3>
-    
-    <div class="slider-container">
-        <input type="range" min="1" max="10" value="5" class="slider" id="calmSlider">
-        <div class="value-display" id="sliderValue">5/10 😐</div>
+    <div class="card">
+        <h3>Який твій рівень спокою?</h3>
+        <p class="subtitle">Потягни язичок, щоб виставити стан на початку навчання</p>
+        
+        <div class="emoji-display" id="emojiFace">😐</div>
+        <div class="value-text" id="sliderValue">5 / 10</div>
+        <div class="status-label" id="statusLabel">Тримаюся</div>
+
+        <div class="slider-wrapper">
+            <input type="range" min="1" max="10" value="5" class="slider" id="calmSlider">
+        </div>
+
+        <button class="btn" id="sendBtn">Зберегти стан</button>
     </div>
 
-    <button class="btn" id="sendBtn">Зберегти результат</button>
-
     <script>
-        // Ініціалізуємо Telegram WebApp
         const tg = window.Telegram.WebApp;
-        tg.expand(); // Розгортаємо шторку на оптимальну висоту
+        tg.ready();
+        tg.expand(); // Розгортаємо додаток максимально зручно
 
         const slider = document.getElementById('calmSlider');
-        const output = document.getElementById('sliderValue');
+        const emojiFace = document.getElementById('emojiFace');
+        const sliderValue = document.getElementById('sliderValue');
+        const statusLabel = document.getElementById('statusLabel');
         const sendBtn = document.getElementById('sendBtn');
 
-        // Емодзі під кожен рівень стресу/спокою
-        const emojis = ["😭", "😰", "😰", "😬", "😐", "😐", "🙂", "😌", "😎", "🧘‍♂️"];
-
-        // Оновлюємо цифру та емодзі при перетягуванні язичка
-        slider.oninput = function() {
-            const val = this.value;
-            output.innerHTML = `${val}/10 ${emojis[val - 1]}`;
+        // Дані для кожного рівня: [Емодзі, Текст статусу, Колір бренду]
+        const states = {
+            1: ["😭", "Повна паніка", "#ef4444"],
+            2: ["😰", "Дуже тривожно", "#f97316"],
+            3: ["😬", "Стрес наростає", "#f59e0b"],
+            4: ["😓", "Важкувато", "#eab308"],
+            5: ["😐", "Нормально / Тримаюся", "#6366f1"],
+            6: ["🙂", "Більш-менш ок", "#10b981"],
+            7: ["😌", "Спокійний(а)", "#059669"],
+            8: ["😎", "Все під контролем", "#047857"],
+            9: ["🧘‍♂️", "Повний дзен", "#065f46"],
+            10: ["🚀", "Готовий(а) підкорювати світ!", "#1e1b4b"]
         };
 
-        // Дія при натисканні на кнопку "Зберегти"
+        let lastValue = slider.value;
+
+        function updateUI(val) {
+            const [emoji, label, color] = states[val];
+            
+            sliderValue.innerText = `${val} / 10`;
+            statusLabel.innerText = label;
+            statusLabel.style.color = color;
+            slider.style.borderImage = color;
+            
+            // Змінюємо колір самого повзунка динамічно
+            document.documentElement.style.setProperty('--accent-color', color);
+            slider.style.background = `linear-gradient(to right, ${color} ${(val-1)*11.1}%, #e5e7eb ${(val-1)*11.1}%)`;
+
+            if (emojiFace.innerText !== emoji) {
+                emojiFace.innerText = emoji;
+                emojiFace.classList.add('pop');
+                setTimeout(() => emojiFace.classList.remove('pop'), 200);
+            }
+
+            // Тактильний відгук (вібрація) при зміні значення
+            if (val !== lastValue) {
+                if (tg.HapticFeedback) {
+                    tg.HapticFeedback.impactOccurred('light');
+                }
+                lastValue = val;
+            }
+        }
+
+        // Ініціалізація початкового стану
+        updateUI(slider.value);
+
+        slider.oninput = function() {
+            updateUI(this.value);
+        };
+
         sendBtn.onclick = function() {
+            const val = slider.value;
+            const [emoji, label] = states[val];
+            
             const resultData = {
-                score: slider.value
+                score: val,
+                status: label,
+                emoji: emoji
             };
             
-            // Відправляємо дані назад нашому боту в Telegram
+            // Відправляємо боту красивий результат
             tg.sendData(JSON.stringify(resultData));
-            
-            // Закриваємо шторку додатка
             tg.close();
         };
     </script>
